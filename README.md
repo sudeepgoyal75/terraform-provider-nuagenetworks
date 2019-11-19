@@ -8,8 +8,8 @@ Nuage Networks Terraform Provider
 Requirements
 ------------
 
--	[Terraform](https://www.terraform.io/downloads.html) 0.10.x
--	[Go](https://golang.org/doc/install) 1.9 (to build the provider plugin)
+- [Terraform](https://www.terraform.io/downloads.html) 0.10.x
+- [Go](https://golang.org/doc/install) 1.9 (to build the provider plugin)
 
 Building The Provider
 ---------------------
@@ -38,9 +38,9 @@ The Nuage Networks VSP API is based on parent/child relationship. For any child 
 
 ```
 resource "nuagenetworks_ns_gateway" "nsgateway" {
-  parent_enterprise = "${var.enterprise}"
-  template_id       = "${var.template}"
-  name              = "${var.name}"
+    parent_enterprise = "${var.enterprise}"
+      template_id       = "${var.template}"
+        name              = "${var.name}"
 }
 ```
 

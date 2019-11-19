@@ -1,0 +1,169 @@
+package nuagenetworks
+
+import (
+    "github.com/hashicorp/terraform/helper/schema"
+    vspk "github.com/tpretz/vspk-go/vspk/5.4.1"
+)
+
+func resourcePolicyObjectGroup() *schema.Resource {
+    return &schema.Resource{
+        Create: resourcePolicyObjectGroupCreate,
+        Read:   resourcePolicyObjectGroupRead,
+        Update: resourcePolicyObjectGroupUpdate,
+        Delete: resourcePolicyObjectGroupDelete,
+        Importer: &schema.ResourceImporter{
+            State: schema.ImportStatePassthrough,
+        },
+        Schema: map[string]*schema.Schema{
+            "parent_id": &schema.Schema{
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+            },
+            "parent_type": &schema.Schema{
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+            },
+            "owner": &schema.Schema{
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+            },
+            "name": &schema.Schema{
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+            },
+            "last_updated_by": &schema.Schema{
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+            },
+            "description": &schema.Schema{
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+            },
+            "entity_scope": &schema.Schema{
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+            },
+            "external_id": &schema.Schema{
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+            },
+            "type": &schema.Schema{
+                Type:     schema.TypeString,
+                Optional: true,
+                Computed: true,
+            },
+            "parent_enterprise": &schema.Schema{
+                Type:     schema.TypeString,
+                Required: true,
+            },
+        },
+    }
+}
+
+func resourcePolicyObjectGroupCreate(d *schema.ResourceData, m interface{}) error {
+
+    // Initialize PolicyObjectGroup object
+    o := &vspk.PolicyObjectGroup{
+    }
+    if attr, ok := d.GetOk("name"); ok {
+        o.Name = attr.(string)
+    }
+    if attr, ok := d.GetOk("description"); ok {
+        o.Description = attr.(string)
+    }
+    if attr, ok := d.GetOk("external_id"); ok {
+        o.ExternalID = attr.(string)
+    }
+    if attr, ok := d.GetOk("type"); ok {
+        o.Type = attr.(string)
+    }
+    parent := &vspk.Enterprise{ID: d.Get("parent_enterprise").(string)}
+    err := parent.CreatePolicyObjectGroup(o)
+    if err != nil {
+        return err
+    }
+    
+    
+
+    d.SetId(o.Identifier())
+    if attr, ok := d.GetOk("nsgateways"); ok {
+        o.AssignNSGateways(attr.(vspk.NSGatewaysList))
+    }
+    return resourcePolicyObjectGroupRead(d, m)
+}
+
+func resourcePolicyObjectGroupRead(d *schema.ResourceData, m interface{}) error {
+    o := &vspk.PolicyObjectGroup{
+        ID: d.Id(),
+    }
+
+    err := o.Fetch()
+    if err != nil {
+        d.SetId("")
+        return nil
+    }
+
+    d.Set("name", o.Name)
+    d.Set("last_updated_by", o.LastUpdatedBy)
+    d.Set("description", o.Description)
+    d.Set("entity_scope", o.EntityScope)
+    d.Set("external_id", o.ExternalID)
+    d.Set("type", o.Type)
+    
+    d.Set("id", o.Identifier())
+    d.Set("parent_id", o.ParentID)
+    d.Set("parent_type", o.ParentType)
+    d.Set("owner", o.Owner)
+
+    return nil
+}
+
+func resourcePolicyObjectGroupUpdate(d *schema.ResourceData, m interface{}) error {
+    o := &vspk.PolicyObjectGroup{
+        ID: d.Id(),
+    }
+    
+    err := o.Fetch()
+    if err != nil {
+        return err
+    }
+    
+    
+    if attr, ok := d.GetOk("name"); ok {
+        o.Name = attr.(string)
+    }
+    if attr, ok := d.GetOk("description"); ok {
+        o.Description = attr.(string)
+    }
+    if attr, ok := d.GetOk("external_id"); ok {
+        o.ExternalID = attr.(string)
+    }
+    if attr, ok := d.GetOk("type"); ok {
+        o.Type = attr.(string)
+    }
+
+    o.Save()
+
+    return nil
+}
+
+func resourcePolicyObjectGroupDelete(d *schema.ResourceData, m interface{}) error {
+    o := &vspk.PolicyObjectGroup{
+        ID: d.Id(),
+    }
+
+    err := o.Delete()
+    if err != nil {
+        return err
+    }
+
+    return nil
+}
